@@ -1,0 +1,430 @@
+********************Assignment1****************************
+DaemonSet is going to deploy Nginx only on nodes labeled as ssd=true
+
+apiVersion: apps/v1 
+kind: "DaemonSet" 
+metadata: 
+labels: 
+app: nginx 
+ssd: "true" 
+name: nginx-ssd-storage 
+spec: 
+template: 
+metadata: 
+labels: 
+app: nginx ssd: "true" 
+spec: 
+nodeSelector: 
+ssd: "true" 
+containers: - 
+name: nginx 
+image: nginx:1.10.0
+
+
+**************************Assignment 2*********************
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+        
+        
+ Create the Deployment by running the following command: 
+ kubectl apply -f https://k8s.io/examples/controllers/nginx-deployment.yaml
+     
+     
+ Run "kubectl get deployments" to check if the Deployment was created.
+  NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+nginx-deployment        0/1     0            0           1s
+
+
+*****************************Assignment 3***************************************
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world
+spec:
+  selector:
+    matchLabels:
+      run: load-balancer-example
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        run: load-balancer-example
+    spec:
+      containers:
+        - name: hello-world
+          image: gcr.io/google-samples/node-hello:1.0
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+ 
+ Run a Hello World application in your cluster: Create the application Deployment using the file above:  
+ 
+  kubectl apply -f https://k8s.io/examples/service/access/hello-application.yaml
+  [root@ip-172-31-31-56 ~]# kubectl apply -f https://k8s.io/examples/service/access/hello-application.yaml
+deployment.apps/hello-world created
+  [root@ip-172-31-31-56 ~]#  kubectl expose deployment hello-world --type=NodePort --name=example-service
+service/example-service exposed
+[root@ip-172-31-31-56 ~]# kubectl describe svc example-service
+Name:                     example-service
+Namespace:                satya1
+Labels:                   <none>
+Annotations:              <none>
+Selector:                 run=load-balancer-example
+Type:                     NodePort
+IP Families:              <none>
+IP:                       10.100.160.158
+IPs:                      <none>
+Port:                     <unset>  8080/TCP
+TargetPort:               8080/TCP
+NodePort:                 <unset>  30028/TCP
+Endpoints:                <none>
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+  
+[root@ip-172-31-31-56 kubernetes-training]# kubectl get pods --selector="run=load-balancer-example" --output=wide
+NAME                           READY   STATUS    RESTARTS   AGE     IP               NODE                                              NOMINATED NODE   READINESS GATES
+hello-world-86d6c6f84d-c8qsl   1/1     Running   0          8m58s   192.168.106.23   ip-172-31-31-56.ap-southeast-1.compute.internal   <none>           <none>
+hello-world-86d6c6f84d-wzz7s   1/1     Running   0          8m58s   192.168.106.26   ip-172-31-31-56.ap-southeast-1.compute.internal   <none>           <none>
+
+***************************************Assignment-4 *************************************************************
+Xshell 4 (Build 0131)
+Copyright (c) 2002-2014 NetSarang Computer, Inc. All rights reserved.
+
+Type `help' to learn how to use Xshell prompt.
+Xshell:\> 
+
+Connecting to 52.221.238.205:22...
+Connection established.
+To escape to local shell, press 'Ctrl+Alt+]'.
+
+Last login: Tue Apr 26 08:15:04 2022 from 103.103.57.56
+
+       __|  __|_  )
+       _|  (     /   Amazon Linux 2 AMI
+      ___|\___|___|
+
+https://aws.amazon.com/amazon-linux-2/
+18 package(s) needed for security, out of 35 available
+Run "sudo yum update" to apply all updates.
+[ec2-user@ip-172-31-31-56 ~]$ sudo su -
+Last login: Tue Apr 26 08:16:23 UTC 2022 on pts/1
+[root@ip-172-31-31-56 ~]# cd /root/
+[root@ip-172-31-31-56 ~]# git clone https://github.com/ashishrpandey/example-voting-app
+Cloning into 'example-voting-app'...
+remote: Enumerating objects: 494, done.
+remote: Total 494 (delta 0), reused 0 (delta 0), pack-reused 494
+Receiving objects: 100% (494/494), 236.17 KiB | 13.12 MiB/s, done.
+Resolving deltas: 100% (179/179), done.
+[root@ip-172-31-31-56 ~]# ls 
+example-voting-app  kubernetes-training
+[root@ip-172-31-31-56 ~]# /root/example-voting-app/k8s-specifications
+-bash: /root/example-voting-app/k8s-specifications: Is a directory
+[root@ip-172-31-31-56 ~]# cd example-voting-app
+[root@ip-172-31-31-56 example-voting-app]# ls
+architecture.png  docker-compose-javaworker.yml  docker-compose.yml  k8s-specifications  MAINTAINERS  result  worker
+dockercloud.yml   docker-compose-simple.yml      docker-stack.yml    LICENSE             README.md    vote
+[root@ip-172-31-31-56 example-voting-app]# cd k8s-specifications
+[root@ip-172-31-31-56 k8s-specifications]# kubectl apply -f
+error: flag needs an argument: 'f' in -f
+See 'kubectl apply --help' for usage.
+[root@ip-172-31-31-56 k8s-specifications]# kubectl apply -f .
+deployment.apps/db created
+service/db created
+deployment.apps/redis created
+service/redis created
+deployment.apps/result created
+deployment.apps/vote created
+deployment.apps/worker created
+Error from server (Invalid): error when creating "result-service.yaml": Service "result" is invalid: spec.ports[0].nodePort: Invalid value: 31001: provided port is already allocated
+Error from server (Invalid): error when creating "vote-service.yaml": Service "vote" is invalid: spec.ports[0].nodePort: Invalid value: 31000: provided port is already allocated
+[root@ip-172-31-31-56 k8s-specifications]# kubectl apply -f.
+deployment.apps/db unchanged
+service/db unchanged
+deployment.apps/redis unchanged
+service/redis unchanged
+deployment.apps/result unchanged
+deployment.apps/vote unchanged
+deployment.apps/worker unchanged
+Error from server (Invalid): error when creating "result-service.yaml": Service "result" is invalid: spec.ports[0].nodePort: Invalid value: 31001: provided port is already allocated
+Error from server (Invalid): error when creating "vote-service.yaml": Service "vote" is invalid: spec.ports[0].nodePort: Invalid value: 31000: provided port is already allocated
+[root@ip-172-31-31-56 k8s-specifications]# kubectl apply -f .
+deployment.apps/db unchanged
+service/db unchanged
+deployment.apps/redis unchanged
+service/redis unchanged
+deployment.apps/result unchanged
+deployment.apps/vote unchanged
+deployment.apps/worker unchanged
+Error from server (Invalid): error when creating "result-service.yaml": Service "result" is invalid: spec.ports[0].nodePort: Invalid value: 31001: provided port is already allocated
+Error from server (Invalid): error when creating "vote-service.yaml": Service "vote" is invalid: spec.ports[0].nodePort: Invalid value: 31000: provided port is already allocated
+[root@ip-172-31-31-56 k8s-specifications]# kubectl get po
+NAME                      READY   STATUS    RESTARTS   AGE
+db-b54cd94f4-xfn5w        1/1     Running   0          119s
+fortune                   2/2     Running   0          2d6h
+kubia2-satya-9m7ff        1/1     Running   0          3d17h
+kubia2-satya-nwxtw        1/1     Running   0          3d17h
+kubia2-satya-xlnqc        1/1     Running   0          3d17h
+redis-868d64d78-5j9xl     1/1     Running   0          119s
+result-5d57b59f4b-5vq2k   1/1     Running   0          119s
+ssd-monitor-f4f58         1/1     Running   0          3d7h
+vote-94849dc97-gd9zn      1/1     Running   0          119s
+worker-dd46d7584-nvf27    1/1     Running   0          119s
+[root@ip-172-31-31-56 k8s-specifications]# kubectl get pod -o -wide
+error: unable to match a printer suitable for the output format "-wide", allowed formats are: custom-columns,custom-columns-file,go-template,go-template-file,json,jsonpath,jsonpath-as-json,jsonpath-file,name,template,templatefile,wide,yaml
+[root@ip-172-31-31-56 k8s-specifications]# kubectl get pod -o  wide
+NAME                      READY   STATUS    RESTARTS   AGE     IP               NODE                                              NOMINATED NODE   READINESS GATES
+db-b54cd94f4-xfn5w        1/1     Running   0          2m27s   192.168.106.61   ip-172-31-31-56.ap-southeast-1.compute.internal   <none>           <none>
+fortune                   2/2     Running   0          2d6h    192.168.106.52   ip-172-31-31-56.ap-southeast-1.compute.internal   <none>           <none>
+kubia2-satya-9m7ff        1/1     Running   0          3d17h   192.168.106.41   ip-172-31-31-56.ap-southeast-1.compute.internal   <none>           <none>
+kubia2-satya-nwxtw        1/1     Running   0          3d17h   192.168.106.39   ip-172-31-31-56.ap-southeast-1.compute.internal   <none>           <none>
+kubia2-satya-xlnqc        1/1     Running   0          3d17h   192.168.106.40   ip-172-31-31-56.ap-southeast-1.compute.internal   <none>           <none>
+redis-868d64d78-5j9xl     1/1     Running   0          2m27s   192.168.106.62   ip-172-31-31-56.ap-southeast-1.compute.internal   <none>           <none>
+result-5d57b59f4b-5vq2k   1/1     Running   0          2m27s   192.168.106.63   ip-172-31-31-56.ap-southeast-1.compute.internal   <none>           <none>
+ssd-monitor-f4f58         1/1     Running   0          3d7h    192.168.106.42   ip-172-31-31-56.ap-southeast-1.compute.internal   <none>           <none>
+vote-94849dc97-gd9zn      1/1     Running   0          2m27s   192.168.106.3    ip-172-31-31-56.ap-southeast-1.compute.internal   <none>           <none>
+worker-dd46d7584-nvf27    1/1     Running   0          2m27s   192.168.106.9    ip-172-31-31-56.ap-southeast-1.compute.internal   <none>           <none>
+[root@ip-172-31-31-56 k8s-specifications]# kubectl get all
+NAME                          READY   STATUS    RESTARTS   AGE
+pod/db-b54cd94f4-xfn5w        1/1     Running   0          5m48s
+pod/fortune                   2/2     Running   0          2d6h
+pod/kubia2-satya-9m7ff        1/1     Running   0          3d18h
+pod/kubia2-satya-nwxtw        1/1     Running   0          3d18h
+pod/kubia2-satya-xlnqc        1/1     Running   0          3d18h
+pod/redis-868d64d78-5j9xl     1/1     Running   0          5m48s
+pod/result-5d57b59f4b-5vq2k   1/1     Running   0          5m48s
+pod/ssd-monitor-f4f58         1/1     Running   0          3d7h
+pod/vote-94849dc97-gd9zn      1/1     Running   0          5m48s
+pod/worker-dd46d7584-nvf27    1/1     Running   0          5m48s
+
+NAME                                 DESIRED   CURRENT   READY   AGE
+replicationcontroller/kubia2-satya   3         3         3       3d18h
+
+NAME            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+service/db      ClusterIP   10.107.112.133   <none>        5432/TCP   5m48s
+service/redis   ClusterIP   10.105.89.74     <none>        6379/TCP   5m48s
+
+NAME                         DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+daemonset.apps/ssd-monitor   1         1         1       1            1           disk=ssd        3d7h
+
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/db       1/1     1            1           5m48s
+deployment.apps/redis    1/1     1            1           5m48s
+deployment.apps/result   1/1     1            1           5m48s
+deployment.apps/vote     1/1     1            1           5m48s
+deployment.apps/worker   1/1     1            1           5m48s
+
+NAME                                DESIRED   CURRENT   READY   AGE
+replicaset.apps/db-b54cd94f4        1         1         1       5m48s
+replicaset.apps/redis-868d64d78     1         1         1       5m48s
+replicaset.apps/result-5d57b59f4b   1         1         1       5m48s
+replicaset.apps/vote-94849dc97      1         1         1       5m48s
+replicaset.apps/worker-dd46d7584    1         1         1       5m48s
+[root@ip-172-31-31-56 k8s-specifications]# ll
+total 36
+-rw-r--r-- 1 root root 401 Apr 28 11:20 db-deployment.yaml
+-rw-r--r-- 1 root root 146 Apr 28 11:20 db-service.yaml
+-rw-r--r-- 1 root root 402 Apr 28 11:20 redis-deployment.yaml
+-rw-r--r-- 1 root root 152 Apr 28 11:20 redis-service.yaml
+-rw-r--r-- 1 root root 299 Apr 28 11:20 result-deployment.yaml
+-rw-r--r-- 1 root root 195 Apr 28 11:20 result-service.yaml
+-rw-r--r-- 1 root root 289 Apr 28 11:20 vote-deployment.yaml
+-rw-r--r-- 1 root root 192 Apr 28 11:20 vote-service.yaml
+-rw-r--r-- 1 root root 292 Apr 28 11:20 worker-deployment.yaml
+[root@ip-172-31-31-56 k8s-specifications]# vi vote-deployment.yaml
+[root@ip-172-31-31-56 k8s-specifications]# kubectl get ALL
+error: the server doesn't have a resource type "ALL"
+[root@ip-172-31-31-56 k8s-specifications]# kubectl get all
+NAME                          READY   STATUS    RESTARTS   AGE
+pod/db-b54cd94f4-xfn5w        1/1     Running   0          26m
+pod/fortune                   2/2     Running   0          2d7h
+pod/kubia2-satya-9m7ff        1/1     Running   0          3d18h
+pod/kubia2-satya-nwxtw        1/1     Running   0          3d18h
+pod/kubia2-satya-xlnqc        1/1     Running   0          3d18h
+pod/redis-868d64d78-5j9xl     1/1     Running   0          26m
+pod/result-5d57b59f4b-5vq2k   1/1     Running   0          26m
+pod/ssd-monitor-f4f58         1/1     Running   0          3d7h
+pod/vote-94849dc97-gd9zn      1/1     Running   0          26m
+pod/worker-dd46d7584-nvf27    1/1     Running   0          26m
+
+NAME                                 DESIRED   CURRENT   READY   AGE
+replicationcontroller/kubia2-satya   3         3         3       3d18h
+
+NAME            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+service/db      ClusterIP   10.107.112.133   <none>        5432/TCP   26m
+service/redis   ClusterIP   10.105.89.74     <none>        6379/TCP   26m
+
+NAME                         DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+daemonset.apps/ssd-monitor   1         1         1       1            1           disk=ssd        3d7h
+
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/db       1/1     1            1           26m
+deployment.apps/redis    1/1     1            1           26m
+deployment.apps/result   1/1     1            1           26m
+deployment.apps/vote     1/1     1            1           26m
+deployment.apps/worker   1/1     1            1           26m
+
+NAME                                DESIRED   CURRENT   READY   AGE
+replicaset.apps/db-b54cd94f4        1         1         1       26m
+replicaset.apps/redis-868d64d78     1         1         1       26m
+replicaset.apps/result-5d57b59f4b   1         1         1       26m
+replicaset.apps/vote-94849dc97      1         1         1       26m
+replicaset.apps/worker-dd46d7584    1         1         1       26m
+[root@ip-172-31-31-56 k8s-specifications]# vi  result-service.yaml
+[root@ip-172-31-31-56 k8s-specifications]# vi  vote-service.yaml
+[root@ip-172-31-31-56 k8s-specifications]# kubectl get all
+NAME                          READY   STATUS    RESTARTS   AGE
+pod/db-b54cd94f4-xfn5w        1/1     Running   0          31m
+pod/fortune                   2/2     Running   0          2d7h
+pod/kubia2-satya-9m7ff        1/1     Running   0          3d18h
+pod/kubia2-satya-nwxtw        1/1     Running   0          3d18h
+pod/kubia2-satya-xlnqc        1/1     Running   0          3d18h
+pod/redis-868d64d78-5j9xl     1/1     Running   0          31m
+pod/result-5d57b59f4b-5vq2k   1/1     Running   0          31m
+pod/ssd-monitor-f4f58         1/1     Running   0          3d7h
+pod/vote-94849dc97-gd9zn      1/1     Running   0          31m
+pod/worker-dd46d7584-nvf27    1/1     Running   0          31m
+
+NAME                                 DESIRED   CURRENT   READY   AGE
+replicationcontroller/kubia2-satya   3         3         3       3d18h
+
+NAME            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+service/db      ClusterIP   10.107.112.133   <none>        5432/TCP   31m
+service/redis   ClusterIP   10.105.89.74     <none>        6379/TCP   31m
+
+NAME                         DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+daemonset.apps/ssd-monitor   1         1         1       1            1           disk=ssd        3d7h
+
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/db       1/1     1            1           31m
+deployment.apps/redis    1/1     1            1           31m
+deployment.apps/result   1/1     1            1           31m
+deployment.apps/vote     1/1     1            1           31m
+deployment.apps/worker   1/1     1            1           31m
+
+NAME                                DESIRED   CURRENT   READY   AGE
+replicaset.apps/db-b54cd94f4        1         1         1       31m
+replicaset.apps/redis-868d64d78     1         1         1       31m
+replicaset.apps/result-5d57b59f4b   1         1         1       31m
+replicaset.apps/vote-94849dc97      1         1         1       31m
+replicaset.apps/worker-dd46d7584    1         1         1       31m
+[root@ip-172-31-31-56 k8s-specifications]# kubectl delete all
+error: resource(s) were provided, but no name was specified
+[root@ip-172-31-31-56 k8s-specifications]# kubectl delete all --all
+pod "db-b54cd94f4-xfn5w" deleted
+pod "fortune" deleted
+pod "kubia2-satya-9m7ff" deleted
+pod "kubia2-satya-nwxtw" deleted
+pod "kubia2-satya-xlnqc" deleted
+pod "redis-868d64d78-5j9xl" deleted
+pod "result-5d57b59f4b-5vq2k" deleted
+pod "ssd-monitor-f4f58" deleted
+pod "vote-94849dc97-gd9zn" deleted
+pod "worker-dd46d7584-nvf27" deleted
+replicationcontroller "kubia2-satya" deleted
+service "db" deleted
+service "redis" deleted
+daemonset.apps "ssd-monitor" deleted
+deployment.apps "db" deleted
+deployment.apps "redis" deleted
+deployment.apps "result" deleted
+deployment.apps "vote" deleted
+deployment.apps "worker" deleted
+replicaset.apps "db-b54cd94f4" deleted
+replicaset.apps "redis-868d64d78" deleted
+replicaset.apps "result-5d57b59f4b" deleted
+replicaset.apps "vote-94849dc97" deleted
+^C
+[root@ip-172-31-31-56 k8s-specifications]# kubectl apply -f .
+deployment.apps/db created
+service/db created
+deployment.apps/redis created
+service/redis created
+deployment.apps/result created
+deployment.apps/vote created
+deployment.apps/worker created
+Error from server (Invalid): error when creating "result-service.yaml": Service "result" is invalid: spec.ports[0].nodePort: Invalid value: 31001: provided port is already allocated
+Error from server (Invalid): error when creating "vote-service.yaml": Service "vote" is invalid: spec.ports[0].nodePort: Invalid value: 31000: provided port is already allocated
+[root@ip-172-31-31-56 k8s-specifications]# vi  vote-service.yaml
+[root@ip-172-31-31-56 k8s-specifications]# vi  result-service.yaml
+[root@ip-172-31-31-56 k8s-specifications]# vi  result-service.yaml
+[root@ip-172-31-31-56 k8s-specifications]# kubectl apply -f .
+deployment.apps/db unchanged
+service/db unchanged
+deployment.apps/redis unchanged
+service/redis unchanged
+deployment.apps/result unchanged
+service/result created
+deployment.apps/vote unchanged
+service/vote created
+deployment.apps/worker unchanged
+[root@ip-172-31-31-56 k8s-specifications]# kubectl get all
+NAME                          READY   STATUS    RESTARTS   AGE
+pod/db-b54cd94f4-bkfzl        1/1     Running   0          3m25s
+pod/redis-868d64d78-zqt9s     1/1     Running   0          3m25s
+pod/result-5d57b59f4b-q7fw5   1/1     Running   0          3m25s
+pod/vote-94849dc97-kvsdn      1/1     Running   0          3m25s
+pod/worker-dd46d7584-hm458    1/1     Running   0          3m25s
+
+NAME             TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+service/db       ClusterIP   10.109.14.9      <none>        5432/TCP         3m25s
+service/redis    ClusterIP   10.108.107.109   <none>        6379/TCP         3m25s
+service/result   NodePort    10.98.67.171     <none>        5001:31003/TCP   25s
+service/vote     NodePort    10.101.131.108   <none>        5000:31002/TCP   25s
+
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/db       1/1     1            1           3m25s
+deployment.apps/redis    1/1     1            1           3m25s
+deployment.apps/result   1/1     1            1           3m25s
+deployment.apps/vote     1/1     1            1           3m25s
+deployment.apps/worker   1/1     1            1           3m25s
+
+NAME                                DESIRED   CURRENT   READY   AGE
+replicaset.apps/db-b54cd94f4        1         1         1       3m25s
+replicaset.apps/redis-868d64d78     1         1         1       3m25s
+replicaset.apps/result-5d57b59f4b   1         1         1       3m25s
+replicaset.apps/vote-94849dc97      1         1         1       3m25s
+replicaset.apps/worker-dd46d7584    1         1         1       3m25s
+[root@ip-172-31-31-56 k8s-specifications]# kubectl delete pod/vote-94849dc97-kvsdn
+pod "vote-94849dc97-kvsdn" deleted
+[root@ip-172-31-31-56 k8s-specifications]# kubectl delete pod/worker-dd46d7584-hm458
+pod "worker-dd46d7584-hm458" deleted
+[root@ip-172-31-31-56 k8s-specifications]# kubectl delete pod/db-b54cd94f4-bkfzl
+pod "db-b54cd94f4-bkfzl" deleted
+[root@ip-172-31-31-56 k8s-specifications]# kubectl get pod all
+Error from server (NotFound): pods "all" not found
+[root@ip-172-31-31-56 k8s-specifications]# kubectl get pod 
+NAME                      READY   STATUS    RESTARTS   AGE
+db-b54cd94f4-842b4        1/1     Running   0          58s
+redis-868d64d78-zqt9s     1/1     Running   0          18m
+result-5d57b59f4b-q7fw5   1/1     Running   0          18m
+vote-94849dc97-vh5rn      1/1     Running   0          11m
+worker-dd46d7584-26tqm    1/1     Running   1          6m34s
+[root@ip-172-31-31-56 k8s-specifications]# 
+Connection closed by foreign host.
+
+
+Observations:
+1.voting result are not update becuase DB pod is deleted.
+2. we required to deleted the result pod to update the results.
+
+
